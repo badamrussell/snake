@@ -1,47 +1,32 @@
 //["N", "E", "S", "W"]
 
-var HEIGHT = 100;
-var WIDTH = 100;
 
-var Coord = function(x, y) {
-  this.x = x;
-  this.y = y;
 
-  this.plus = function(dir) {
-    switch(dir){
-    case "N":
-      this.y -= 1;
-      break;
-    case "S":
-      this.y += 1;
-      break;
-    case "E":
-      this.x += 1;
-      break;
-    case "W":
-      this.x -= 1;
-      break;
-    };
-  };
-
-  this.random = function() {
-    var y = Math.floor(Math.random() * HEIGHT));
-    var x = Math.floor(Math.random() * WIDTH));
-    return new Coord(x,y);
-  }
-}
-
-var Snake = function() {
+var Snake = function(startX, startY) {
   this.dir = "N";
   this.segments = [];
 
+  this.makeSnake(startX, startY);
 
 }
 
 _.extend(Snake.prototype, {
+  makeSnake: function(x, y) {
+    var tail = new Coord(x, y);
+    this.segments.push(tail);
+    var self = this;
+
+    for (var i=0; i < 5; i++) {
+      //this.grow.bind(this);
+      this.grow();
+    }
+  },
+
   move: function() {
     this.segments.pop();
-    var head = segments[0].plus(this.dir());
+    var prevHead = this.segments[0];
+    var head = new Coord(prevHead.x, prevHead.y);
+    head.plus(this.dir);
     this.segments.unshift(head);
   },
 
@@ -49,19 +34,22 @@ _.extend(Snake.prototype, {
     this.dir = turnDir;
   },
 
-  makeSnake: function() {
-    var tail = new Coord(50,50);
-    var self = this;
-
-    for (var i=0; i < 5; i++) {
-      this.grow();
-    }
-  }
-
   grow: function() {
-    console.log("WORRY ABOUT THIS");
-    var head = segments[segments.length-1].plus(self.dir);
+    var prevHead = this.segments[this.segments.length-1];
+    var head = new Coord(prevHead.x, prevHead.y);
+    var tailDir = this.dir == "S" ? "N" : "S";
+    head.plus(tailDir);
     this.segments.push(head);
-  }
+  },
 
+  hasCoord: function(otherCoord) {
+   var overlap = false;
+   this.segments.forEach(function(coord) {
+     if (coord.isSameAs(otherCoord)){
+       overlap = true;
+       return;
+     };
+   });
+   return overlap;
+  }
 });
